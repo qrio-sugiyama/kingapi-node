@@ -1,0 +1,40 @@
+version: '3'
+services:
+  king-api-node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - king-db-node
+    volumes: 
+      - type: bind
+        source: ./
+        target: /usr/src/app
+    ports:
+      - 8080:3000
+    tty: true
+    stdin_open: true
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:@king-db:5432
+    networks:
+      - joker-node
+    command: "npm run dev"
+  king-db-node:
+    image: postgres:14.6-alpine
+    volumes:
+      - type: volume
+        source: database
+        target: /var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    networks:
+      - joker-node
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+volumes:
+  database:
+networks:
+  joker-node:
+    external: true
